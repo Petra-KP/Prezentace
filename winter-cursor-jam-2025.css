@@ -191,9 +191,10 @@ body {
 
 .presentation-container {
     width: 100%;
-    height: 100%;
+    height: 100vh;
     position: relative;
     overflow-y: auto;
+    overflow-x: hidden;
     scroll-behavior: smooth;
     scroll-snap-type: y mandatory;
     z-index: 2;
@@ -202,11 +203,12 @@ body {
 /* Slide základní styly */
 .slide {
     width: 100%;
-    min-height: 100vh;
+    height: 100vh;
+    max-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: var(--spacing-16) var(--spacing-8);
+    padding: clamp(1rem, 2vh, 2rem) clamp(1rem, 2vw, 2rem);
     position: relative;
     background: transparent;
     scroll-snap-align: start;
@@ -216,6 +218,7 @@ body {
     transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     pointer-events: none;
     z-index: 2;
+    overflow: hidden;
 }
 
 .slide.slide-active {
@@ -229,27 +232,32 @@ body {
 }
 
 .slide-inner {
-    max-width: 1200px;
+    max-width: min(1200px, 90vw);
     width: 100%;
+    height: 100%;
+    max-height: 100%;
     margin: 0 auto;
     position: relative;
     z-index: 3;
     display: flex;
     flex-direction: column;
+    justify-content: center;
+    gap: clamp(0.5rem, 1vh, 1rem);
 }
 
 /* Logo footer */
 .slide-logo-footer {
     margin-top: auto;
-    padding-top: var(--spacing-6);
+    padding-top: clamp(0.5rem, 1vh, 1rem);
     text-align: center;
     opacity: 0.5;
+    flex-shrink: 0;
 }
 
 .footer-logo {
-    height: 30px;
+    height: clamp(20px, 3vh, 30px);
     width: auto;
-    max-width: 150px;
+    max-width: min(150px, 20vw);
     object-fit: contain;
 }
 
@@ -257,13 +265,64 @@ body {
     width: 100%;
     background: rgba(20, 25, 40, 0.85);
     backdrop-filter: blur(20px);
-    padding: var(--spacing-10);
+    padding: clamp(1rem, 2vh, 2.5rem) clamp(1.5rem, 3vw, 2.5rem);
     border-radius: var(--radius-2xl);
     box-shadow: 
         var(--shadow-lg),
         0 0 40px rgba(255, 105, 180, 0.2),
         0 0 40px rgba(135, 206, 250, 0.2);
     border: 1px solid rgba(255, 255, 255, 0.1);
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-height: 0;
+    max-height: 100%;
+    justify-content: flex-start;
+}
+
+/* Slidy s minimálním obsahem - vycentrování */
+.slide-content-wrapper:not(:has(.session-content)):not(:has(.agenda-list)):not(:has(.quiz-prizes)):not(:has(.timer-container)):not(:has(.image-full)) {
+    justify-content: center;
+    align-items: center;
+}
+
+/* Slidy pouze s nadpisem a subtitle - vycentrování */
+.slide-content-wrapper:has(.slide-heading):has(.subtitle):not(:has(.session-content)):not(:has(.agenda-list)):not(:has(.quiz-prizes)):not(:has(.timer-container)):not(:has(.image-full)) {
+    justify-content: center;
+    align-items: center;
+}
+
+/* Slidy pouze s nadpisem - vycentrování */
+.slide-content-wrapper:has(.slide-heading):not(:has(.subtitle)):not(:has(.session-content)):not(:has(.agenda-list)):not(:has(.quiz-prizes)):not(:has(.timer-container)):not(:has(.image-full)) {
+    justify-content: center;
+    align-items: center;
+}
+
+/* Slidy s obrázky - vycentrování */
+.slide-content-wrapper:has(.image-full) {
+    justify-content: center;
+    align-items: center;
+    padding: clamp(2rem, 4vh, 4rem) clamp(1.5rem, 3vw, 2.5rem);
+}
+
+.slide-content-wrapper::-webkit-scrollbar {
+    width: 6px;
+}
+
+.slide-content-wrapper::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+}
+
+.slide-content-wrapper::-webkit-scrollbar-thumb {
+    background: rgba(255, 105, 180, 0.5);
+    border-radius: 3px;
+}
+
+.slide-content-wrapper::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 105, 180, 0.7);
 }
 
 /* Title Slide */
@@ -273,8 +332,9 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 80vh;
-    gap: var(--spacing-8);
+    flex: 1 1 auto;
+    min-height: 0;
+    gap: clamp(1rem, 2vh, 2rem);
 }
 
 .slide-title-main {
@@ -299,68 +359,234 @@ body {
 }
 
 .logo-title {
-    width: 200px;
+    width: clamp(120px, 15vw, 200px);
     height: auto;
     max-width: 100%;
     filter: brightness(0) invert(1);
+    flex-shrink: 0;
 }
 
 /* Slide Heading */
 .slide-heading {
     font-family: var(--font-display);
-    font-size: clamp(3rem, 6vw, var(--font-size-h2));
+    font-size: clamp(2rem, 4vw + 1vh, 3.5rem);
     font-weight: 400;
     color: var(--color-white-100);
     line-height: 1.2;
-    margin-bottom: var(--spacing-10);
+    margin-bottom: clamp(1rem, 2vh, 2rem);
+    margin-top: 0;
     text-align: center;
     text-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+    flex-shrink: 0;
+}
+
+/* Nadpis na slide s obrázkem - menší mezera */
+.slide-content-wrapper:has(.image-full) .slide-heading {
+    margin-bottom: clamp(0.5rem, 1vh, 1rem);
+}
+
+/* Nadpis v minimálních slidech - menší margin */
+.slide-content-wrapper:not(:has(.session-content)):not(:has(.agenda-list)):not(:has(.quiz-prizes)):not(:has(.timer-container)):not(:has(.image-full)) .slide-heading {
+    margin-bottom: clamp(0.75rem, 1.5vh, 1.5rem);
 }
 
 .slide-heading-compact {
-    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-size: clamp(1.5rem, 2.8vw + 0.8vh, 2.2rem);
     line-height: 1.1;
-    white-space: nowrap;
+    white-space: normal;
+    word-wrap: break-word;
+    hyphens: auto;
 }
 
 .subtitle {
     font-family: var(--font-body);
-    font-size: clamp(1.5rem, 2.5vw, var(--font-size-body));
+    font-size: clamp(1rem, 1.5vw + 1vh, 1.5rem);
     color: rgba(255, 255, 255, 0.8);
     text-align: center;
-    margin-bottom: var(--spacing-6);
+    margin-bottom: clamp(0.75rem, 1.5vh, 1.5rem);
+    margin-top: 0;
+    flex-shrink: 0;
+}
+
+/* Subtitle v minimálních slidech - menší margin */
+.slide-content-wrapper:not(:has(.session-content)):not(:has(.agenda-list)):not(:has(.quiz-prizes)):not(:has(.timer-container)):not(:has(.image-full)) .subtitle {
+    margin-bottom: 0;
 }
 
 .subtitle-small {
     font-family: var(--font-body);
-    font-size: var(--font-size-body-2);
+    font-size: clamp(1rem, 1.2vw + 0.8vh, 1.3rem);
     color: rgba(255, 255, 255, 0.7);
     text-align: center;
-    margin-bottom: var(--spacing-8);
+    margin-bottom: clamp(1rem, 2vh, 2rem);
+    margin-top: 0;
+    flex-shrink: 0;
 }
 
 .duration-large {
     font-family: var(--font-display);
-    font-size: clamp(3rem, 8vw, 5rem);
+    font-size: clamp(2.5rem, 6vw + 3vh, 4.5rem);
     font-weight: 400;
     color: var(--color-white-100);
     text-align: center;
-    margin-top: var(--spacing-8);
+    margin-top: clamp(1rem, 2vh, 2rem);
     margin-bottom: 0;
     text-shadow: 
         0 0 20px rgba(255, 105, 180, 0.5),
         0 0 40px rgba(135, 206, 250, 0.3);
+    flex-shrink: 0;
+}
+
+/* Timer Container */
+.timer-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: clamp(1rem, 2vh, 2rem);
+    margin-top: clamp(1rem, 2vh, 2rem);
+    margin-bottom: clamp(0.5rem, 1vh, 1rem);
+    flex: 0 1 auto;
+    min-height: 0;
+}
+
+/* Slidy s timerem - vycentrování obsahu */
+.slide-content-wrapper:has(.timer-container) {
+    justify-content: center;
+    align-items: center;
+}
+
+.slide-content-wrapper:has(.timer-container) .slide-heading {
+    margin-bottom: clamp(1.5rem, 3vh, 3rem);
+}
+
+.timer-display {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: clamp(1rem, 2vh, 2rem) clamp(2rem, 4vw, 4rem);
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    border-radius: var(--radius-2xl);
+    border: 2px solid rgba(255, 105, 180, 0.5);
+    box-shadow: 
+        0 0 30px rgba(255, 105, 180, 0.4),
+        0 0 60px rgba(135, 206, 250, 0.3),
+        inset 0 0 20px rgba(255, 255, 255, 0.1);
+    flex-shrink: 0;
+}
+
+.timer-time {
+    font-family: var(--font-display);
+    font-size: clamp(3rem, 8vw + 3vh, 6rem);
+    font-weight: 600;
+    color: var(--color-white-100);
+    text-shadow: 
+        0 0 20px rgba(255, 105, 180, 0.8),
+        0 0 40px rgba(255, 105, 180, 0.6),
+        0 0 60px rgba(135, 206, 250, 0.4);
+    letter-spacing: 0.05em;
+    min-width: min(200px, 30vw);
+    text-align: center;
+}
+
+.timer-display.timer-finished {
+    border-color: rgba(255, 20, 147, 0.8);
+    box-shadow: 
+        0 0 40px rgba(255, 20, 147, 0.6),
+        0 0 80px rgba(255, 20, 147, 0.4),
+        inset 0 0 30px rgba(255, 20, 147, 0.2);
+}
+
+.timer-display.timer-finished .timer-time {
+    animation: timerPulse 1s ease-in-out infinite;
+    color: var(--color-magenta-glow);
+    text-shadow: 
+        0 0 30px rgba(255, 20, 147, 1),
+        0 0 60px rgba(255, 20, 147, 0.8),
+        0 0 90px rgba(255, 20, 147, 0.6);
+}
+
+@keyframes timerPulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 0.9;
+    }
+}
+
+/* Timer Play Button */
+.timer-play-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: clamp(60px, 8vw + 4vh, 80px);
+    height: clamp(60px, 8vw + 4vh, 80px);
+    background: var(--color-pink-glow);
+    color: var(--color-white-100);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 
+        0 0 20px rgba(255, 105, 180, 0.6),
+        0 0 40px rgba(255, 105, 180, 0.4);
+    padding: 0;
+    flex-shrink: 0;
+}
+
+.timer-play-btn:hover {
+    background: var(--color-warm-yellow);
+    transform: scale(1.1);
+    box-shadow: 
+        0 0 30px rgba(255, 215, 0, 0.8),
+        0 0 60px rgba(255, 215, 0, 0.6);
+}
+
+.timer-play-btn:active {
+    transform: scale(0.95);
+}
+
+.timer-play-btn.timer-running {
+    background: rgba(255, 255, 255, 0.2);
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.timer-play-btn.timer-running:hover {
+    transform: scale(1);
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: 
+        0 0 20px rgba(255, 105, 180, 0.6),
+        0 0 40px rgba(255, 105, 180, 0.4);
+}
+
+.timer-play-btn svg {
+    margin-left: 4px;
+    width: clamp(20px, 3vw, 24px);
+    height: clamp(20px, 3vw, 24px);
 }
 
 /* Full Image Slides */
 .image-full {
     width: 100%;
     text-align: center;
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible;
+    margin: auto;
 }
 
 .image-full img {
-    width: 100%;
-    max-width: 1000px;
+    max-width: min(1000px, 90vw);
+    max-height: calc(100vh - clamp(4rem, 8vh, 8rem));
+    width: auto;
     height: auto;
     border-radius: var(--radius-xl);
     box-shadow: 
@@ -368,6 +594,8 @@ body {
         0 0 30px rgba(255, 105, 180, 0.3),
         0 0 30px rgba(135, 206, 250, 0.3);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    object-fit: contain;
+    margin: auto;
 }
 
 .image-full:hover img {
@@ -380,18 +608,28 @@ body {
 
 /* Crop bottom of image to hide text overlay */
 .image-crop-bottom {
-    overflow: hidden;
-    max-height: 85vh;
+    overflow: visible;
+    max-height: none;
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     justify-content: center;
+    flex: 1 1 auto;
+    min-height: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
 }
 
 .image-crop-bottom img {
-    object-fit: cover;
-    object-position: top center;
-    max-height: 85vh;
-    width: 100%;
+    object-fit: contain;
+    object-position: center;
+    max-height: calc(100vh - clamp(4rem, 8vh, 8rem));
+    max-width: min(1000px, 90vw);
+    width: auto;
+    height: auto;
+    display: block;
+    margin: 0 auto;
 }
 
 /* Fit image to slide height */
@@ -399,14 +637,17 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    max-height: 70vh;
+    max-height: calc(100vh - clamp(2rem, 4vh, 4rem));
     overflow: hidden;
+    flex: 1 1 auto;
+    min-height: 0;
 }
 
 .image-fit-height img {
-    max-height: 70vh;
-    width: auto;
+    max-height: 100%;
     max-width: 100%;
+    width: auto;
+    height: auto;
     object-fit: contain;
 }
 
@@ -474,24 +715,71 @@ body {
 /* Agenda List */
 .agenda-list {
     list-style: none;
-    max-width: 900px;
+    max-width: min(900px, 90vw);
     margin: 0 auto;
+    width: 100%;
+    flex: 0 1 auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-height: 0;
+    padding-right: 0.5rem;
+}
+
+/* Agenda list přímo v slide-content-wrapper (bez session-content) - vycentrování */
+.slide-content-wrapper:has(.agenda-list):not(:has(.session-content)) {
+    justify-content: center;
+    align-items: center;
+}
+
+.slide-content-wrapper:has(.agenda-list):not(:has(.session-content)) .agenda-list {
+    flex: 0 1 auto;
+    margin-top: 0;
+    max-height: none;
+}
+
+.slide-content-wrapper:has(.agenda-list):not(:has(.session-content)) .slide-heading {
+    margin-bottom: clamp(1.5rem, 3vh, 3rem);
+}
+
+/* Agenda list v session-content - také vycentrování */
+.session-content .agenda-list {
+    flex: 0 1 auto;
+    margin-top: 0;
+}
+
+.agenda-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.agenda-list::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+}
+
+.agenda-list::-webkit-scrollbar-thumb {
+    background: rgba(255, 105, 180, 0.5);
+    border-radius: 3px;
+}
+
+.agenda-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 105, 180, 0.7);
 }
 
 .agenda-list li {
-    padding: var(--spacing-6);
-    margin-bottom: var(--spacing-4);
+    padding: clamp(0.75rem, 1.5vh, 1.5rem);
+    margin-bottom: clamp(0.5rem, 1vh, 1rem);
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
     border-left: 4px solid var(--color-pink-glow);
     border-radius: var(--radius-lg);
-    font-size: clamp(1.5rem, 2.5vw, var(--font-size-body));
+    font-size: clamp(1rem, 1.5vw + 0.8vh, 1.5rem);
     box-shadow: var(--shadow-sm);
     display: flex;
     align-items: center;
-    gap: var(--spacing-4);
+    gap: clamp(0.5rem, 1vw, 1rem);
     color: var(--color-white-100);
     transition: all 0.3s ease;
+    flex-shrink: 0;
 }
 
 .agenda-list li:hover {
@@ -503,25 +791,50 @@ body {
 /* Program List */
 .program-list {
     list-style: none;
-    max-width: 700px;
+    max-width: min(700px, 85vw);
     margin: 0 auto;
+    width: 100%;
+    flex: 1 1 auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-height: 0;
+    max-height: calc(100vh - clamp(10rem, 20vh, 16rem));
+}
+
+.program-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.program-list::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+}
+
+.program-list::-webkit-scrollbar-thumb {
+    background: rgba(135, 206, 250, 0.5);
+    border-radius: 3px;
+}
+
+.program-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(135, 206, 250, 0.7);
 }
 
 .program-list li {
-    padding: var(--spacing-8);
-    margin-bottom: var(--spacing-6);
+    padding: clamp(0.75rem, 1.5vh, 1.5rem);
+    margin-bottom: clamp(0.5rem, 1vh, 1rem);
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
     border-left: 4px solid var(--color-blue-window);
     border-radius: var(--radius-lg);
-    font-size: clamp(1.5rem, 2.5vw, var(--font-size-body));
+    font-size: clamp(1rem, 1.5vw + 0.8vh, 1.4rem);
     box-shadow: var(--shadow-md);
     display: flex;
     align-items: center;
-    gap: var(--spacing-6);
+    gap: clamp(0.75rem, 1.5vw, 1.5rem);
     color: var(--color-white-100);
     transition: all 0.3s ease;
     font-weight: 500;
+    flex-shrink: 0;
 }
 
 .program-list li:hover {
@@ -532,28 +845,99 @@ body {
 
 /* Session Content */
 .session-content {
-    margin-top: var(--spacing-8);
+    margin-top: clamp(1rem, 2vh, 2rem);
+    flex: 0 1 auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - clamp(12rem, 25vh, 20rem));
+}
+
+/* Slidy s session-content - vycentrování podle množství obsahu */
+.slide-content-wrapper:has(.session-content) {
+    justify-content: center;
+    align-items: center;
+}
+
+.slide-content-wrapper:has(.session-content) .slide-heading {
+    margin-bottom: clamp(1rem, 2vh, 2rem);
+}
+
+.session-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.session-content::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+}
+
+.session-content::-webkit-scrollbar-thumb {
+    background: rgba(255, 105, 180, 0.5);
+    border-radius: 3px;
+}
+
+.session-content::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 105, 180, 0.7);
 }
 
 .session-subtitle {
     font-family: var(--font-display);
-    font-size: var(--font-size-h3);
-    margin-bottom: var(--spacing-6);
+    font-size: clamp(1.5rem, 2.5vw + 1vh, 2.5rem);
+    margin-bottom: clamp(0.75rem, 1.5vh, 1.5rem);
+    margin-top: 0;
     color: var(--color-white-100);
     text-align: center;
+    flex-shrink: 0;
 }
 
 .emoji {
-    font-size: 2.5rem;
+    font-size: clamp(1.5rem, 2vw + 1vh, 2.5rem);
     line-height: 1;
     flex-shrink: 0;
 }
 
 /* Quiz Prizes */
 .quiz-prizes {
-    max-width: 600px;
+    max-width: min(600px, 85vw);
     margin: 0 auto;
-    margin-top: var(--spacing-8);
+    margin-top: clamp(1rem, 2vh, 2rem);
+    flex: 0 1 auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-height: 0;
+    width: 100%;
+    max-height: calc(100vh - clamp(10rem, 20vh, 16rem));
+}
+
+/* Slidy s quiz prizes - vycentrování */
+.slide-content-wrapper:has(.quiz-prizes) {
+    justify-content: center;
+    align-items: center;
+}
+
+.slide-content-wrapper:has(.quiz-prizes) .slide-heading {
+    margin-bottom: clamp(1rem, 2vh, 2rem);
+}
+
+.quiz-prizes::-webkit-scrollbar {
+    width: 6px;
+}
+
+.quiz-prizes::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+}
+
+.quiz-prizes::-webkit-scrollbar-thumb {
+    background: rgba(255, 105, 180, 0.5);
+    border-radius: 3px;
+}
+
+.quiz-prizes::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 105, 180, 0.7);
 }
 
 .prizes-title {
@@ -567,15 +951,18 @@ body {
 .prize-item {
     display: flex;
     align-items: center;
-    gap: var(--spacing-6);
-    padding: var(--spacing-6);
-    margin-bottom: var(--spacing-4);
+    gap: clamp(0.75rem, 1.5vw, 1.5rem);
+    padding: clamp(0.75rem, 1.5vh, 1.5rem);
+    margin-bottom: clamp(0.5rem, 1vh, 1rem);
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
     border-radius: var(--radius-lg);
-    font-size: clamp(1.5rem, 2.5vw, var(--font-size-body));
+    font-size: clamp(1rem, 1.5vw + 0.8vh, 1.4rem);
     color: var(--color-white-100);
     transition: all 0.3s ease;
+    text-wrap: balance;
+    line-height: 1.4;
+    flex-shrink: 0;
 }
 
 .prize-item:hover {
@@ -584,7 +971,8 @@ body {
 }
 
 .prize-item .emoji {
-    font-size: 3rem;
+    font-size: clamp(2rem, 3vw + 1vh, 3rem);
+    flex-shrink: 0;
 }
 
 /* Navigation */
