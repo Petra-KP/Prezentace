@@ -4,6 +4,9 @@ let direction = 0;
 const slides = document.querySelectorAll('.slide');
 const totalSlides = slides.length;
 
+// Timer management
+let activeTimers = {};
+
 // Inicializace
 document.addEventListener('DOMContentLoaded', function() {
     initPresentation();
@@ -12,6 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
     createSnowflakes();
     createTwinklingLights();
     updateSlideDisplay();
+    setupTimerButtons();
 });
 
 // Inicializace prezentace
@@ -117,6 +121,7 @@ function goToSlide(index) {
     
     updateSlideDisplay();
     scrollToSlide();
+    handleTimerForSlide(index);
 }
 
 // Aktualizace zobrazení
@@ -195,9 +200,11 @@ function handleScroll() {
     });
     
     if (newCurrentSlide !== currentSlide) {
+        const oldSlide = currentSlide;
         currentSlide = newCurrentSlide;
-        direction = newCurrentSlide > currentSlide ? 1 : -1;
+        direction = newCurrentSlide > oldSlide ? 1 : -1;
         updateSlideDisplay();
+        handleTimerForSlide(newCurrentSlide);
     }
 }
 
@@ -265,6 +272,125 @@ window.addEventListener('afterprint', function() {
     if (snowflakes) snowflakes.style.display = 'block';
     if (lights) lights.style.display = 'block';
 });
+
+// Timer functions
+function handleTimerForSlide(slideIndex) {
+    const slide = slides[slideIndex];
+    if (!slide) return;
+    
+    const timerMinutes = slide.getAttribute('data-timer');
+    if (!timerMinutes) {
+        // Zastavíme všechny timery, pokud přejdeme na slide bez timeru
+        stopAllTimers();
+        return;
+    }
+    
+    // Resetujeme timer display na počáteční hodnotu, ale nespouštíme ho
+    const timerId = `timer-${slideIndex}`;
+    const timerDisplay = document.getElementById(timerId);
+    const playBtn = document.getElementById(`play-btn-${slideIndex}`);
+    
+    if (timerDisplay) {
+        // Resetujeme zobrazení na počáteční čas
+        const timeElement = timerDisplay.querySelector('.timer-time');
+        if (timeElement) {
+            const mins = parseInt(timerMinutes);
+            timeElement.textContent = `${mins.toString().padStart(2, '0')}:00`;
+        }
+        timerDisplay.classList.remove('timer-finished');
+    }
+    
+    if (playBtn) {
+        // Zobrazíme tlačítko play
+        playBtn.classList.remove('timer-running');
+        playBtn.style.display = 'flex';
+    }
+    
+    // Zastavíme ostatní timery
+    stopAllTimers();
+}
+
+function startTimer(minutes, displayElement, timerId, playBtn) {
+    // Pokud už timer běží, zastavíme ho
+    if (activeTimers[timerId]) {
+        clearInterval(activeTimers[timerId]);
+    }
+    
+    // Resetujeme stav timeru (odstraníme třídu timer-finished)
+    displayElement.classList.remove('timer-finished');
+    
+    // Skryjeme tlačítko play
+    if (playBtn) {
+        playBtn.classList.add('timer-running');
+    }
+    
+    let totalSeconds = minutes * 60;
+    const timeElement = displayElement.querySelector('.timer-time');
+    
+    function updateTimer() {
+        const mins = Math.floor(totalSeconds / 60);
+        const secs = totalSeconds % 60;
+        const formattedTime = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        
+        if (timeElement) {
+            timeElement.textContent = formattedTime;
+        }
+        
+        if (totalSeconds <= 0) {
+            // Timer došel na konec
+            if (timeElement) {
+                timeElement.textContent = '00:00';
+            }
+            displayElement.classList.add('timer-finished');
+            clearInterval(activeTimers[timerId]);
+            delete activeTimers[timerId];
+            
+            // Zobrazíme znovu tlačítko play
+            if (playBtn) {
+                playBtn.classList.remove('timer-running');
+            }
+        } else {
+            totalSeconds--;
+        }
+    }
+    
+    // Okamžitě zobrazíme počáteční čas
+    updateTimer();
+    
+    // Spustíme odpočítávání každou sekundu
+    activeTimers[timerId] = setInterval(updateTimer, 1000);
+}
+
+function stopAllTimers() {
+    Object.keys(activeTimers).forEach(timerId => {
+        clearInterval(activeTimers[timerId]);
+        delete activeTimers[timerId];
+    });
+}
+
+// Nastavení tlačítek play pro timery
+function setupTimerButtons() {
+    // Najdeme všechny slidy s timerem
+    slides.forEach((slide, index) => {
+        const timerMinutes = slide.getAttribute('data-timer');
+        if (!timerMinutes) return;
+        
+        const timerId = `timer-${index}`;
+        const playBtnId = `play-btn-${index}`;
+        const playBtn = document.getElementById(playBtnId);
+        const timerDisplay = document.getElementById(timerId);
+        
+        if (playBtn && timerDisplay) {
+            playBtn.addEventListener('click', function() {
+                // Zastavíme ostatní timery
+                stopAllTimers();
+                
+                // Spustíme timer pro tento slide
+                startTimer(parseInt(timerMinutes), timerDisplay, timerId, playBtn);
+            });
+        }
+    });
+}
 
 // Export funkcí pro globální použití (pro případné onclick atributy)
 window.changeSlide = changeSlide;
